@@ -80,6 +80,7 @@ def get_data(symbol="BTC/USDT", timeframe ="1h", since_days = 180, exchange_name
         save_to_csv(df, filename)
     return df
 
+
 if __name__ == "__main__":
     # Test running
     df = get_data("BTC/USDT", "1h", 30)
