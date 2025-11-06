@@ -39,4 +39,18 @@ def macd(df, fast_period = 12, slow_period = 26, signal_period = 9, column = 'cl
         'MACD_Histogram': histogram
     }, index = df.index)
 
-# (To be added) def bollinger_bands(df, window = 20, num_std = 2, column = 'close')
+def bollinger_bands(df, window = 20, num_std = 2, column = 'close'):
+    """
+    볼린저 밴드 (Bollinger Bands) 계산
+    """
+    sma_values = sma(df, window, column)
+    std_dev = df[column].rolling(window=window).std()
+    upper_band = sma_values + (std_dev * num_std)
+    lower_band = sma_values - (std_dev * num_std)
+    return pd.DataFrame({
+        'Bollinger_Upper': upper_band,
+        'Bollinger_Middle': sma_values,
+        'Bollinger_Lower': lower_band
+    }, index = df.index) 
+
+    
