@@ -22,7 +22,9 @@ def rsi(df, period = 14, column = 'close'):
     avg_gain = gain.rolling(window=period).mean()
     avg_loss = loss.rolling(window=period).mean()
     rs = avg_gain / avg_loss
-    return 100 - (100 / (1 + rs)) # Returned : rsi
+    series = 100 - (100 / (1 + rs))
+    series.name = 'RSI'
+    return series
 
 def macd(df, fast_period = 12, slow_period = 26, signal_period = 9, column = 'close'):
     """
@@ -33,9 +35,10 @@ def macd(df, fast_period = 12, slow_period = 26, signal_period = 9, column = 'cl
     macd_line = ema_fast - ema_slow
     signal_line = macd_line.ewm(span=signal_period, adjust=False).mean()
     histogram = macd_line - signal_line
+    # align column names with strategy expectations ('MACD', 'MACD_Signal')
     return pd.DataFrame({
-        'MACD_Line': macd_line,
-        'MACD_Signal_Line': signal_line,
+        'MACD': macd_line,
+        'MACD_Signal': signal_line,
         'MACD_Histogram': histogram
     }, index = df.index)
 
