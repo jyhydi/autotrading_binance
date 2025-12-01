@@ -6,7 +6,7 @@ def generate_signals(
     macd_fast: int | None = None,
     macd_slow: int | None = None,
     macd_signal: int | None = None,
-    bollinger_band_window: int | None = None,
+    bollinger_bands_window: int | None = None,
     bollinger_bands_std: float | None = None,
 ):
     """
@@ -60,8 +60,8 @@ def generate_signals(
     bb_df = None
     if (('Bollinger_Upper' not in df.columns or 'Bollinger_Lower' not in df.columns) and bollinger_bands is not None):
         bb_kwargs = {}
-        if bollinger_band_window is not None:
-            bb_kwargs['window'] = int(bollinger_band_window)
+        if bollinger_bands_window is not None:
+            bb_kwargs['window'] = int(bollinger_bands_window)
         if bollinger_bands_std is not None:
             bb_kwargs['num_std'] = float(bollinger_bands_std)
 

@@ -34,7 +34,7 @@ class IndicatorParamNN(nn.Module):
             ("macd_fast", 5, 20, True),
             ("macd_slow", 15, 40, True),
             ("macd_signal", 5, 20, True),
-            ("bollinger_band_window", 10, 40, True),
+            ("bollinger_bands_window", 10, 40, True),
             ("bollinger_bands_std", 1, 3, False)
         ]
           

@@ -65,7 +65,7 @@ def train_optimizer(
     df["RSI"] = rsi(df, params["rsi_period"])
     macd_df = macd(df, params["macd_fast"], params["macd_slow"], params["macd_signal"])
     df = df.join(macd_df)
-    df = df.join(bollinger_bands(df, window = params["bollinger_band_window"], num_std = params["bollinger_bands_std"]))
+    df = df.join(bollinger_bands(df, window = params["bollinger_bands_window"], num_std = params["bollinger_bands_std"]))
 
   #step 5: Strategy signal
   # generate_signals returns a Series; assign it into the DataFrame's 'signal' column
@@ -74,7 +74,9 @@ def train_optimizer(
     rsi_period = params["rsi_period"],
     macd_fast = params["macd_fast"],
     macd_slow = params["macd_slow"],
-    macd_signal = params["macd_signal"]
+    macd_signal = params["macd_signal"],
+    bollinger_bands_window = params["bollinger_bands_window"],
+    bollinger_bands_std = params["bollinger_bands_std"]
   )
     
   #step 6: Backtest --> get performance dataframe

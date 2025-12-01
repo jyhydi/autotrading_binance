@@ -65,3 +65,4 @@ if __name__ == "__main__":
   print(f"final equity: {final_equity:,.0f} KRW")
 
 
+
