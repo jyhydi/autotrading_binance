@@ -1,6 +1,14 @@
 import pandas as pd
 
-def generate_signals(df):
+def generate_signals(
+    df,
+    rsi_period: int | None = None,
+    macd_fast: int | None = None,
+    macd_slow: int | None = None,
+    macd_signal: int | None = None,
+    bollinger_band_window: int | None = None,
+    bollinger_bands_std: float | None = None,
+):
     """
     지표 기반 매매 신호 생성
     필요한 지표(RSI, MACD, Bollinger)가 없으면 내부에서 계산하여 보장함.
@@ -15,26 +23,55 @@ def generate_signals(df):
         rsi = macd = bollinger_bands = None
 
     if 'RSI' not in df.columns and rsi is not None:
-        df['RSI'] = rsi(df)
+        # pass provided period if available
+        if rsi_period is not None:
+            df['RSI'] = rsi(df, period=int(rsi_period))
+        else:
+            df['RSI'] = rsi(df)
 
+    # prepare macd_df variable
+    macd_df = None
     if (('MACD' not in df.columns or 'MACD_Signal' not in df.columns) and macd is not None):
-        macd_df = macd(df)
-        # macd() returns DataFrame with 'MACD' and 'MACD_Signal'
-        if isinstance(macd_df, pd.DataFrame):
-            # prefer direct column names if provided
-            if 'MACD' in macd_df.columns and 'MACD_Signal' in macd_df.columns:
-                df['MACD'] = macd_df['MACD']
-                df['MACD_Signal'] = macd_df['MACD_Signal']
-            else:
-                # fall back to older names if present
-                df['MACD'] = macd_df.get('MACD_Line')
-                df['MACD_Signal'] = macd_df.get('MACD_Signal_Line')
+        # pass provided MACD parameters when available
+        macd_kwargs = {}
+        if macd_fast is not None:
+            macd_kwargs['fast_period'] = int(macd_fast)
+        if macd_slow is not None:
+            macd_kwargs['slow_period'] = int(macd_slow)
+        if macd_signal is not None:
+            macd_kwargs['signal_period'] = int(macd_signal)
 
+        if macd_kwargs:
+            macd_df = macd(df, **macd_kwargs)
+        else:
+            macd_df = macd(df)
+    # macd() returns DataFrame with 'MACD' and 'MACD_Signal'
+    if macd_df is not None and isinstance(macd_df, pd.DataFrame):
+        # prefer direct column names if provided
+        if 'MACD' in macd_df.columns and 'MACD_Signal' in macd_df.columns:
+            df['MACD'] = macd_df['MACD']
+            df['MACD_Signal'] = macd_df['MACD_Signal']
+        else:
+            # fall back to older names if present
+            df['MACD'] = macd_df.get('MACD_Line')
+            df['MACD_Signal'] = macd_df.get('MACD_Signal_Line')
+
+    # prepare bb_df variable
+    bb_df = None
     if (('Bollinger_Upper' not in df.columns or 'Bollinger_Lower' not in df.columns) and bollinger_bands is not None):
-        bb_df = bollinger_bands(df)
-        if isinstance(bb_df, pd.DataFrame):
-            df['Bollinger_Upper'] = bb_df['Bollinger_Upper']
-            df['Bollinger_Lower'] = bb_df['Bollinger_Lower']
+        bb_kwargs = {}
+        if bollinger_band_window is not None:
+            bb_kwargs['window'] = int(bollinger_band_window)
+        if bollinger_bands_std is not None:
+            bb_kwargs['num_std'] = float(bollinger_bands_std)
+
+        if bb_kwargs:
+            bb_df = bollinger_bands(df, **bb_kwargs)
+        else:
+            bb_df = bollinger_bands(df)
+    if bb_df is not None and isinstance(bb_df, pd.DataFrame):
+        df['Bollinger_Upper'] = bb_df['Bollinger_Upper']
+        df['Bollinger_Lower'] = bb_df['Bollinger_Lower']
 
     # initial signal set to zero
     df["signal"] = 0
